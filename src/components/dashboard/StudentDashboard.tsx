@@ -5,9 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { GraduationCap, LogOut, BookOpen, CheckSquare, FileText, Plus, User as UserIcon } from "lucide-react";
+import { GraduationCap, LogOut, BookOpen, CheckSquare, FileText, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import JoinClassDialog from "./JoinClassDialog";
 import StudentGradesView from "./StudentGradesView";
@@ -106,7 +105,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
       .map(n => n[0])
       .join('')
       .toUpperCase()
-      .slice(0, 2) || '?';
+      .slice(0, 2) || "?";
   };
 
   return (
@@ -152,7 +151,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-3xl font-bold mb-1">Mis Clases</h2>
-              <p className="text-muted-foreground">Accede a tus clases y recursos académicos</p>
+              <p className="text-muted-foreground">Consulta tus clases, notas y asistencia</p>
             </div>
             <Button onClick={() => setJoinDialogOpen(true)} size="lg" className="shadow-lg">
               <Plus className="h-5 w-5 mr-2" />
@@ -191,20 +190,21 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
                         <BookOpen className="h-4 w-4 text-primary" />
                       </div>
                     </CardTitle>
-                    <CardDescription className="flex items-center gap-2">
-                      <UserIcon className="h-3 w-3" />
-                      <span>{classData.teacher_name}</span>
+                    <CardDescription>
+                      Profesor: {classData.teacher_name}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2 min-h-[40px]">
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2 min-h-[40px]">
                       {classData.description || "Sin descripción"}
                     </p>
                     <div className="pt-3 border-t border-border">
-                      <span className="text-xs text-muted-foreground">Código: </span>
-                      <span className="font-mono font-semibold bg-muted px-2 py-1 rounded text-xs">
-                        {classData.code}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">Código:</span>
+                        <span className="font-mono font-semibold text-sm bg-muted px-2 py-1 rounded">
+                          {classData.code}
+                        </span>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -214,19 +214,19 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
         </div>
 
         {classes.length > 0 && (
-          <Tabs defaultValue="grades" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3 max-w-md h-12">
-              <TabsTrigger value="grades" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <Tabs defaultValue="grades" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-3 max-w-md">
+              <TabsTrigger value="grades">
                 <FileText className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Notas</span>
+                Notas
               </TabsTrigger>
-              <TabsTrigger value="attendance" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="attendance">
                 <CheckSquare className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Asistencia</span>
+                Asistencia
               </TabsTrigger>
-              <TabsTrigger value="reports" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="reports">
                 <FileText className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Reportes</span>
+                Reportes
               </TabsTrigger>
             </TabsList>
 

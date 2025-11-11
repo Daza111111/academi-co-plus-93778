@@ -100,7 +100,7 @@ const TeacherDashboard = ({ user }: TeacherDashboardProps) => {
       .map(n => n[0])
       .join('')
       .toUpperCase()
-      .slice(0, 2) || '?';
+      .slice(0, 2) || "?";
   };
 
   return (

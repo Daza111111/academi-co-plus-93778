@@ -70,23 +70,19 @@ const Profile = () => {
       
       // Validate file size (5MB max)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("El archivo es demasiado grande. Máximo 5MB");
+        toast.error("La imagen no debe superar los 5MB");
         return;
       }
 
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user?.id}/avatar-${Date.now()}.${fileExt}`;
-      const filePath = fileName;
-
-      // Delete old avatar if exists
-      if (avatarUrl) {
-        const oldPath = avatarUrl.split('/').slice(-2).join('/');
-        await supabase.storage.from('avatars').remove([oldPath]);
-      }
+      const fileName = `${user?.id}/${Math.random()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file, { upsert: true });
+        .upload(fileName, file, { 
+          upsert: true,
+          contentType: file.type 
+        });
 
       if (uploadError) {
         throw uploadError;
@@ -94,13 +90,13 @@ const Profile = () => {
 
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
-        .getPublicUrl(filePath);
+        .getPublicUrl(fileName);
 
       setAvatarUrl(publicUrl);
       toast.success("Foto cargada exitosamente");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error uploading avatar:", error);
-      toast.error("Error al cargar la foto");
+      toast.error(error.message || "Error al cargar la foto");
     } finally {
       setUploading(false);
     }
