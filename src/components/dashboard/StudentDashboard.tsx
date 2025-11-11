@@ -4,9 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GraduationCap, LogOut, BookOpen, CheckSquare, FileText, Plus } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { GraduationCap, LogOut, BookOpen, CheckSquare, FileText, Plus, User as UserIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import JoinClassDialog from "./JoinClassDialog";
 import StudentGradesView from "./StudentGradesView";
 import StudentAttendanceView from "./StudentAttendanceView";
@@ -98,39 +100,62 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
     fetchClasses(); // Refresh classes after joining
   };
 
+  const getInitials = (name: string) => {
+    return name
+      ?.split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2) || '?';
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-card border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <GraduationCap className="h-8 w-8 text-primary" />
+      <header className="sticky top-0 z-50 bg-card/95 backdrop-blur border-b border-border shadow-sm">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-hero rounded-lg">
+              <GraduationCap className="h-6 w-6 text-white" />
+            </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">AcademiCO</h1>
-              <p className="text-sm text-muted-foreground">Portal Estudiante</p>
+              <h1 className="text-xl font-bold text-foreground">AcademiCO</h1>
+              <p className="text-xs text-muted-foreground">Portal Estudiante</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
             <button 
               onClick={() => navigate("/profile")}
-              className="text-right hover:opacity-80 transition-opacity"
+              className="flex items-center gap-3 hover:bg-muted/50 rounded-lg p-2 transition-colors"
             >
-              <p className="text-sm font-medium">{profile?.full_name}</p>
-              <p className="text-xs text-muted-foreground">{profile?.email}</p>
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-medium">{profile?.full_name}</p>
+                <p className="text-xs text-muted-foreground">{profile?.email}</p>
+              </div>
+              <Avatar className="h-9 w-9 border-2 border-primary/20">
+                <AvatarImage src={profile?.avatar_url || undefined} />
+                <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                  {profile?.full_name ? getInitials(profile.full_name) : '?'}
+                </AvatarFallback>
+              </Avatar>
             </button>
             <Button variant="outline" size="sm" onClick={handleSignOut}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Salir
+              <LogOut className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Salir</span>
             </Button>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-3xl font-bold">Mis Clases</h2>
-            <Button onClick={() => setJoinDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-3xl font-bold mb-1">Mis Clases</h2>
+              <p className="text-muted-foreground">Accede a tus clases y recursos académicos</p>
+            </div>
+            <Button onClick={() => setJoinDialogOpen(true)} size="lg" className="shadow-lg">
+              <Plus className="h-5 w-5 mr-2" />
               Unirse a Clase
             </Button>
           </div>
@@ -156,22 +181,31 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
               {classes.map((classData) => (
                 <Card 
                   key={classData.id} 
-                  className="shadow-card hover:shadow-lg-custom transition-shadow cursor-pointer"
+                  className="group shadow-card hover:shadow-lg-custom transition-all duration-300 cursor-pointer border-2 hover:border-primary/20 bg-gradient-card"
                   onClick={() => setSelectedClass(classData.id)}
                 >
-                  <CardHeader>
-                    <CardTitle>{classData.name}</CardTitle>
-                    <CardDescription>
-                      Profesor: {classData.teacher_name}
+                  <CardHeader className="pb-3">
+                    <CardTitle className="group-hover:text-primary transition-colors flex items-start justify-between">
+                      <span>{classData.name}</span>
+                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <BookOpen className="h-4 w-4 text-primary" />
+                      </div>
+                    </CardTitle>
+                    <CardDescription className="flex items-center gap-2">
+                      <UserIcon className="h-3 w-3" />
+                      <span>{classData.teacher_name}</span>
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground mb-2">
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2 min-h-[40px]">
                       {classData.description || "Sin descripción"}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      Código: <span className="font-mono font-semibold">{classData.code}</span>
-                    </p>
+                    <div className="pt-3 border-t border-border">
+                      <span className="text-xs text-muted-foreground">Código: </span>
+                      <span className="font-mono font-semibold bg-muted px-2 py-1 rounded text-xs">
+                        {classData.code}
+                      </span>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -180,19 +214,19 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
         </div>
 
         {classes.length > 0 && (
-          <Tabs defaultValue="grades" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-3 max-w-md">
-              <TabsTrigger value="grades">
+          <Tabs defaultValue="grades" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-3 max-w-md h-12">
+              <TabsTrigger value="grades" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <FileText className="h-4 w-4 mr-2" />
-                Notas
+                <span className="hidden sm:inline">Notas</span>
               </TabsTrigger>
-              <TabsTrigger value="attendance">
+              <TabsTrigger value="attendance" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <CheckSquare className="h-4 w-4 mr-2" />
-                Asistencia
+                <span className="hidden sm:inline">Asistencia</span>
               </TabsTrigger>
-              <TabsTrigger value="reports">
+              <TabsTrigger value="reports" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <FileText className="h-4 w-4 mr-2" />
-                Reportes
+                <span className="hidden sm:inline">Reportes</span>
               </TabsTrigger>
             </TabsList>
 

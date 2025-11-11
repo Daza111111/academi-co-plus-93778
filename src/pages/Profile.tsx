@@ -67,9 +67,22 @@ const Profile = () => {
       }
 
       const file = event.target.files[0];
+      
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("El archivo es demasiado grande. Máximo 5MB");
+        return;
+      }
+
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user?.id}-${Math.random()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
+      const fileName = `${user?.id}/avatar-${Date.now()}.${fileExt}`;
+      const filePath = fileName;
+
+      // Delete old avatar if exists
+      if (avatarUrl) {
+        const oldPath = avatarUrl.split('/').slice(-2).join('/');
+        await supabase.storage.from('avatars').remove([oldPath]);
+      }
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
